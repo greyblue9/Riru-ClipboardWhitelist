@@ -32,6 +32,9 @@ jobs:
         echo $'\r\nstorePassword=changeit\r\nkeyPassword=changeit\r\nkeyAlias=testkey\r\nstoreFile='"$( find "$JAVA_HOME" -name security | head -1 )"$'/jssecerts'$'\r\n' > /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist/keystore.properties
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+    - name: Set NDK path
+      run: |
+        echo "ndk.dir=$ANDROID_NDK_HOME" >> local.properties
     - name: Build with Gradle
       run: |
         mkdir -p ~/.gradle/wrapper
