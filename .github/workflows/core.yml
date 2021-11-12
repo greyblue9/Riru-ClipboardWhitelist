@@ -18,12 +18,15 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: set up NDK r21e
-      uses: nttld/setup-ndk@v1
-      id: setup-ndk
-      with:
-        ndk-version: r21e
-        add-to-path: true
+    - name: Build with Gradle
+      run: |
+        mkdir -p ~/.gradle/wrapper
+        mkdir -p ~/.gradle/caches
+        echo 'org.gradle.caching=true' >> gradle.properties
+        echo 'org.gradle.parallel=true' >> gradle.properties
+        echo 'org.gradle.vfs.watch=true' >> gradle.properties
+        echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
+        ./gradlew --debug --stacktrace zipDebug zipRelease || true
     - name: Find NDK
       run: |
         set -x -v
@@ -44,7 +47,7 @@ jobs:
         echo 'org.gradle.vfs.watch=true' >> gradle.properties
         echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
         echo 'android.native.buildOutput=verbose' >> gradle.properties
-        ./gradlew zipAll
+        ./gradlew --debug --stacktrace zipAll
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
     - name: Prepare artifact
