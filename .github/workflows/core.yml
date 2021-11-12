@@ -22,6 +22,7 @@ jobs:
         java-version: 11
     - name: Build with Gradle
       run: |
+        echo $'storePassword=changeit\nkeyPassword=changeit\nkeyAlias=testkey\nstoreFile='"$( ls -1 /usr/lib/jvm/java-11*openjdk*/jre/lib/security )"$'/jssecerts' | tee keystore.properties
         echo 'org.gradle.caching=true' >> gradle.properties
         echo 'org.gradle.parallel=true' >> gradle.properties
         echo 'org.gradle.vfs.watch=true' >> gradle.properties
