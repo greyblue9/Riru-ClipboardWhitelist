@@ -35,6 +35,7 @@ jobs:
     - name: Set NDK path
       run: |
         echo "ndk.dir=$ANDROID_NDK_HOME" >> local.properties
+        echo "android.ndkVersion=21.4.7075529" >> local.properties
     - name: Build with Gradle
       run: |
         mkdir -p ~/.gradle/wrapper
