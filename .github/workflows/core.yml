@@ -18,6 +18,20 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: Find NDK
+      run: |
+        set -x -v
+        declare || true
+        typeset -p || true
+        declare -x || true
+        declare -x -p || true
+        mkdir -p /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist
+
+        export NDK_DIR="$ANDROID_NDK_LATEST_HOME"
+        echo $'\r\n'"ndk.dir=$ANDROID_NDK_LATEST_HOME"$'\r\n' | tee -a  /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist/gradle.properties
+        echo $'\r\nstorePassword=changeit\r\nkeyPassword=changeit\r\nkeyAlias=testkey\r\nstoreFile='"$( find "$JAVA_HOME" -name security | head -1 )"$'/jssecerts'$'\r\n' > /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist/keystore.properties
+      env:
+        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
     - name: Build with Gradle
       run: |
         mkdir -p ~/.gradle/wrapper
@@ -26,28 +40,16 @@ jobs:
         echo 'org.gradle.parallel=true' >> gradle.properties
         echo 'org.gradle.vfs.watch=true' >> gradle.properties
         echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
-        ./gradlew --debug --stacktrace zipDebug zipRelease || true
-    - name: Find NDK
-      run: |
-        set -x -v
-        declare || true
-        typeset -p || true
-        declare -x || true
-        declare -x -p || true
-        export NDK_DIR="$ANDROID_NDK_LATEST_HOME"
-        echo $'\r\n'"ndk.dir=$ANDROID_NDK_LATEST_HOME"$'\r\n' | tee -a gradle.properties
-      env:
-        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+        ./gradlew --stacktrace zipDebug zipRelease || true
     - name: Build with Gradle
       run: |
         set -x -v
-        echo $'\r\nstorePassword=changeit\r\nkeyPassword=changeit\r\nkeyAlias=testkey\r\nstoreFile='"$( find "$JAVA_HOME" -name security | head -1 )"$'/jssecerts'$'\r\n' | tee -a keystore.properties
         echo 'org.gradle.caching=true' >> gradle.properties
         echo 'org.gradle.parallel=true' >> gradle.properties
         echo 'org.gradle.vfs.watch=true' >> gradle.properties
         echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
         echo 'android.native.buildOutput=verbose' >> gradle.properties
-        ./gradlew --debug --stacktrace zipAll
+        ./gradlew --stacktrace zipAll
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
     - name: Prepare artifact
