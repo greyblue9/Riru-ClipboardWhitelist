@@ -8,8 +8,6 @@ on:
 jobs:
   build:
     runs-on: ubuntu-20.04
-    if: ${{ !startsWith(github.event.head_commit.message, '[skip ci]') }}
-
     steps:
     - name: Checkout
       uses: actions/checkout@v2
@@ -20,13 +18,30 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - uses: nttld/setup-ndk@v1
+    - name: set up NDK r21e
+      uses: nttld/setup-ndk@v1
       id: setup-ndk
       with:
         ndk-version: r21e
         add-to-path: true
+    - name: Find NDK
+      run: |
+        set -x -v
+        declare || true
+        typeset -p || true
+        declare -x || true
+        declare -x -p || true
+        find /usr/local/lib/android/sdk/ndk/ -mindepth 1 -maxdepth 3 \
+            -exec ls -lApnd -- "{}" +
+        find "$ANDROID_NDK_HOME" -mindepth 1 -maxdepth 3 \
+            -exec ls -lApnd -- "{}" +
+        export NDK_DIR="$( find /usr/local/lib/android/sdk -path "*ndk[/-]*" -a -name "*r21*" -a -type d | head -1 )"
+        echo "ndk.dir=$NDK_DIR" | tee -a gradle.properties
+      env:
+        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
     - name: Build with Gradle
       run: |
+        set -x -v
         echo $'storePassword=changeit\nkeyPassword=changeit\nkeyAlias=testkey\nstoreFile='"$( ls -1 /usr/lib/jvm/java-11*openjdk*/jre/lib/security )"$'/jssecerts' | tee keystore.properties
         echo 'org.gradle.caching=true' >> gradle.properties
         echo 'org.gradle.parallel=true' >> gradle.properties
