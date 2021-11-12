@@ -33,8 +33,8 @@ jobs:
         declare -x -p || true
         mkdir -p /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist
 
-        export NDK_DIR="$ANDROID_NDK_LATEST_HOME"
-        echo $'\r\n'"ndk.dir=$ANDROID_NDK_LATEST_HOME"$'\r\n' | tee -a  /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist/gradle.properties
+        export NDK_DIR="$ANDROID_NDK_HOME"
+        echo $'\r\n'"ndk.dir=$ANDROID_NDK_HOME"$'\r\n' | tee -a  /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist/gradle.properties
         echo $'\r\nstorePassword=changeit\r\nkeyPassword=changeit\r\nkeyAlias=testkey\r\nstoreFile='"$( find "$JAVA_HOME" -name security | head -1 )"$'/jssecerts'$'\r\n' > /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist/keystore.properties
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
