@@ -18,99 +18,49 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: set up NDK r21e
+    - name: set up NDK r21
       uses: nttld/setup-ndk@v1
       id: setup-ndk
       with:
-        ndk-version: r21e
+        ndk-version: r21
         add-to-path: true
-    - name: Find NDK
+    - name: Build
       run: |
-        set -x -v
-        declare || true
-        typeset -p || true
-        declare -x || true
-        declare -x -p || true
         mkdir -p /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist
-
-        export NDK_DIR="$ANDROID_NDK_HOME"
-        echo $'\r\n'"ndk.dir=$ANDROID_NDK_HOME"$'\r\n' | tee -a  /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist/gradle.properties
+        NDK_VER="$( find "$ANDROID_NDK_HOME" -regextype egrep -iregex '.*[^0-9.]2[12]\.[0-9][^/]*$' | head -1 )"
+        NDK_DIR="$ANDROID_NDK_HOME"
+        NDK_ROOT="$ANDROID_NDK_HOME"
+        ANDROID_NDK_LATEST_HOME="$ANDROID_NDK_HOME"
+        export NDK_VER NDK_DIR NDK_ROOT ANDROID_NDK_HOME ANDROID_NDK_LATEST_HOME
+        cur="${PWD}"; cur="${cur: 1}"; cur="${cur%%/*}"; base="/$cur";
+        find "$base/" /usr/local/ /opt/ -xdev -noleaf -regextype egrep \
+             -iregex '.*(android|gradle|ndk).*' -type f \
+             -exec grep -Elwe '21\.[0-9]\.[0-9]{4,}' -- {} + \
+          | xargs -d $'\n' sed -s -r \
+              -e ':a s~(^|[^0-9.])(21\.[0-9]\.[0-9]{4,})($|[^0-9.])~\1'"$NDK_VER"'\3~g; ta; ' \
+              -i;
+        echo $'\r\n'"ndk.dir=$ANDROID_NDK_HOME" >> local.properties
+        echo $'\r\n'"android.ndkVersion=$NDK_VER" >> local.properties
+        echo $'\r\n'"ndk.dir=$ANDROID_NDK_HOME"$'\r\n'ndk.ver=$NDK_VER"$'\r\n'ndk.version=$NDK_VER"$'\r\n'android.ndk.dir=$ANDROID_NDK_HOME"$'\r\n'android.ndk.version=$NDK_VER"$'\r\n' | tee -a  /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist/gradle.properties >> local.properties
         echo $'\r\nstorePassword=changeit\r\nkeyPassword=changeit\r\nkeyAlias=testkey\r\nstoreFile='"$( find "$JAVA_HOME" -name security | head -1 )"$'/jssecerts'$'\r\n' > /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist/keystore.properties
+        echo $'\norg.gradle.caching=false' >> gradle.properties
+        echo $'\norg.gradle.parallel=false' >> gradle.properties
+        echo $'\norg.gradle.vfs.watch=false' >> gradle.properties
+        echo $'\norg.gradle.jvmargs=-Xmx2048m' >> gradle.properties
+        ./gradlew --stacktrace \
+           || ./gradlew --stacktrace build \
+           || ./gradlew --stacktrace configure \
+           || ./gradlew --stacktrace app \
+           || ./gradlew --stacktrace -k --ignore-errors \
+           || find $( pwd ) -name "*.gradle" -exec bash -c \
+              'for f in "$@"; do fn="${f##*/}"; dir="${f: 0:${#f}-${#fn}}"; dir="${dir%%/}"; cd "$dir" || continue; echo "*** ENTERED DIR: $dir ***"; gradle build || gradlew build || '"$PWD"'/gradlew build; echo $?; done' -- "{}" + \
+              ;
       env:
         ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-    - name: Set NDK path
-      run: |
-        echo "ndk.dir=$ANDROID_NDK_HOME" >> local.properties
-        echo "android.ndkVersion=21.4.7075529" >> local.properties
-    - name: Build with Gradle
-      run: |
-        mkdir -p ~/.gradle/wrapper
-        mkdir -p ~/.gradle/caches
-        echo 'org.gradle.caching=true' >> gradle.properties
-        echo 'org.gradle.parallel=true' >> gradle.properties
-        echo 'org.gradle.vfs.watch=true' >> gradle.properties
-        echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
-        ./gradlew --stacktrace zipDebug zipRelease || true
-    - name: Build with Gradle
-      run: |
-        set -x -v
-        echo 'org.gradle.caching=true' >> gradle.properties
-        echo 'org.gradle.parallel=true' >> gradle.properties
-        echo 'org.gradle.vfs.watch=true' >> gradle.properties
-        echo 'org.gradle.jvmargs=-Xmx2048m' >> gradle.properties
-        echo 'android.native.buildOutput=verbose' >> gradle.properties
-        ./gradlew --stacktrace zipAll
-      env:
-        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-    - name: Prepare artifact
-      if: success()
-      id: prepareArtifact
-      run: |
-        riruReleaseName=`ls core/release/LSPosed-v*-riru-release.zip | awk -F '(/|.zip)' '{print $3}'` && echo "::set-output name=riruReleaseName::$riruReleaseName"
-        riruDebugName=`ls core/release/LSPosed-v*-riru-debug.zip | awk -F '(/|.zip)' '{print $3}'` && echo "::set-output name=riruDebugName::$riruDebugName"
-        zygiskReleaseName=`ls core/release/LSPosed-v*-zygisk-release.zip | awk -F '(/|.zip)' '{print $3}'` && echo "::set-output name=zygiskReleaseName::$zygiskReleaseName"
-        zygiskDebugName=`ls core/release/LSPosed-v*-zygisk-debug.zip | awk -F '(/|.zip)' '{print $3}'` && echo "::set-output name=zygiskDebugName::$zygiskDebugName"
-        unzip core/release/LSPosed-v*-riru-release.zip -d LSPosed-riru-release
-        unzip core/release/LSPosed-v*-riru-debug.zip -d LSPosed-riru-debug
-        unzip core/release/LSPosed-v*-zygisk-release.zip -d LSPosed-zygisk-release
-        unzip core/release/LSPosed-v*-zygisk-debug.zip -d LSPosed-zygisk-debug
-    - name: Upload riru release
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ steps.prepareArtifact.outputs.riruReleaseName }}
-        path: './LSPosed-riru-release/*'
-    - name: Upload riru debug
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ steps.prepareArtifact.outputs.riruDebugName }}
-        path: './LSPosed-riru-debug/*'
-    - name: Upload zygisk release
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ steps.prepareArtifact.outputs.zygiskReleaseName }}
-        path: './LSPosed-zygisk-release/*'
-    - name: Upload zygisk debug
-      uses: actions/upload-artifact@v2
-      with:
-        name: ${{ steps.prepareArtifact.outputs.zygiskDebugName }}
-        path: './LSPosed-zygisk-debug/*'
-    - name: Upload mappings
+        ANDROID_NDK_LATEST_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
+    - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
         name: mappings
         path: |
-          core/build/outputs/mapping/release
-          app/build/outputs/mapping/release
-    - name: Print Locations
-      if: ${{ github.event_name != 'pull_request' && success() && github.ref == 'refs/heads/master' }}
-      env:
-        CHANNEL_ID: ${{ secrets.CHANNEL_ID }}
-        BOT_TOKEN: ${{ secrets.BOT_TOKEN }}
-        COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        COMMIT_URL: ${{ github.event.head_commit.url }}
-      run: |
-        OUTPUT="core/release/"
-        echo "riruRelease=$(find $OUTPUT -name "LSPosed-v*-riru-release.zip")"
-        echo "riruDebug=$(find $OUTPUT -name "LSPosed-v*-riru-debug.zip")"
-        echo "zygiskRelease=$(find $OUTPUT -name "LSPosed-v*-zygisk-release.zip")"
-        echo "zygiskDebug=$(find $OUTPUT -name "LSPosed-v*-zygisk-debug.zip")"
+          core/build/outputs/*
