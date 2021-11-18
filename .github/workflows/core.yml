@@ -75,12 +75,12 @@ jobs:
         echo $'\norg.gradle.parallel=true' >> gradle.properties
         echo $'\norg.gradle.vfs.watch=false' >> gradle.properties
         echo $'\norg.gradle.jvmargs=-Xmx2048m' >> gradle.properties
-        ./gradlew --stacktrace \
+        ./gradlew --stacktrace zipAll \
            || ./gradlew  build \
            || ./gradlew  configure \
            || ./gradlew  app \
-           || ./gradlew  zipAll \
-           || find $( pwd ) -name "*.gradle" -exec bash -c \
+           || ./gradlew  zipAll;
+         find $( pwd ) -name "*.gradle" -exec bash -c \
               'for f in "$@"; do fn="${f##*/}"; dir="${f: 0:${#f}-${#fn}}"; dir="${dir%%/}"; cd "$dir" || continue; echo "*** ENTERED DIR: $dir ***"; gradle build || '"$PWD"'/gradlew build; echo $?; done' -- "{}" + \
               ;
     - name: Upload artifacts
