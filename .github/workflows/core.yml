@@ -36,7 +36,7 @@ jobs:
         # echo $'\r\nandroid {    ndkVersion \'23.0.7123448\'\r\n}\r\n' \
         #  | tee -a build.gradle \
         #  ;
-        echo $'\r\nandroid.ndkVersion=23.0.7123448\r\n' \
+        echo $'\r\nandroid.ndkVersion=23.0.7123448\r\nPkg.Revision=23.0.7123448\r\nPkg.Name=android.ndk\r\n' \
           | tee -a /opt/hostedtoolcache/ndk/r23/source.properties \
           | tee -a /usr/local/lib/android/sdk/ndk-bundle/source.properties \
           | tee -a local.properties \
