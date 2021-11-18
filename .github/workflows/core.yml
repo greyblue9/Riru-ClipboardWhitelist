@@ -18,14 +18,11 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
-    - name: set up NDK r21
-      uses: nttld/setup-ndk@v1
-      id: setup-ndk
-      with:
-        ndk-version: r21
-        add-to-path: true
     - name: Build
       run: |
+        set -x -v
+        set +e
+        ANDROID_NDK_HOME="${ANDROID_NDK_HOME:-/opt/hostedtoolcache/ndk/r21/x64}"
         mkdir -p /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist
         NDK_VER="$( find "$ANDROID_NDK_HOME" -regextype egrep -iregex '.*[^0-9.]2[12]\.[0-9][^/]*$' | head -1 )"
         NDK_DIR="$ANDROID_NDK_HOME"
@@ -33,12 +30,14 @@ jobs:
         ANDROID_NDK_LATEST_HOME="$ANDROID_NDK_HOME"
         export NDK_VER NDK_DIR NDK_ROOT ANDROID_NDK_HOME ANDROID_NDK_LATEST_HOME
         cur="${PWD}"; cur="${cur: 1}"; cur="${cur%%/*}"; base="/$cur";
-        find "$base/" /usr/local/ /opt/ -xdev -noleaf -regextype egrep \
-             -iregex '.*(android|gradle|ndk).*' -type f \
-             -exec grep -Elwe '21\.[0-9]\.[0-9]{4,}' -- {} + \
+        if [ x"$NDK_VER" != x ]; then
+          find "/home/runner" /usr/local/ /opt/hostedtoolcache/ -xdev -noleaf -regextype egrep \
+             -iregex '.*(android|gradle|ndk).*' -a -type f \
+             -a -exec grep  --binary-files=without-match  -lwe '21[.][0-9]\+[.][0-9]\+' -- {} \; \
+          | sed -r -u -e 'w /dev/stderr' -e ';' \
           | xargs -d $'\n' sed -s -r \
-              -e ':a s~(^|[^0-9.])(21\.[0-9]\.[0-9]{4,})($|[^0-9.])~\1'"$NDK_VER"'\3~g; ta; ' \
-              -i;
+              -e ':a s~(^|[^0-9.])(21\.[0-9]\.[0-9]{4,})~\1'"$NDK_VER"'\3~g; ' \
+              -i -- ;
         echo $'\r\n'"ndk.dir=$ANDROID_NDK_HOME" >> local.properties
         echo $'\r\n'"android.ndkVersion=$NDK_VER" >> local.properties
         echo $'\r\n'"ndk.dir=$ANDROID_NDK_HOME"$'\r\n'ndk.ver=$NDK_VER"$'\r\n'ndk.version=$NDK_VER"$'\r\n'android.ndk.dir=$ANDROID_NDK_HOME"$'\r\n'android.ndk.version=$NDK_VER"$'\r\n' | tee -a  /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist/gradle.properties >> local.properties
@@ -55,9 +54,6 @@ jobs:
            || find $( pwd ) -name "*.gradle" -exec bash -c \
               'for f in "$@"; do fn="${f##*/}"; dir="${f: 0:${#f}-${#fn}}"; dir="${dir%%/}"; cd "$dir" || continue; echo "*** ENTERED DIR: $dir ***"; gradle build || gradlew build || '"$PWD"'/gradlew build; echo $?; done' -- "{}" + \
               ;
-      env:
-        ANDROID_NDK_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
-        ANDROID_NDK_LATEST_HOME: ${{ steps.setup-ndk.outputs.ndk-path }}
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
       with:
