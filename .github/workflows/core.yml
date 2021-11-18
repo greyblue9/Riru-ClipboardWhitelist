@@ -33,6 +33,14 @@ jobs:
         ls -lAp --color -- /opt/hostedtoolcache/
         ls -lAp --color -- /opt/hostedtoolcache/ndk/r23/
         ls -lAp --color -- /usr/local/lib/android/sdk/ndk-bundle/
+        echo $'\r\nandroid {    ndkVersion \'21.3.6528147\'\r\n}\r\n' \
+          | tee -a build.gradle \
+          ;
+        echo $'\r\nandroid.ndkVersion=21.3.6528147\r\n' \
+          | tee -a /opt/hostedtoolcache/ndk/r23/source.properties \
+          | tee -a /usr/local/lib/android/sdk/ndk-bundle/source.properties \
+          | tee -a local.properties \
+          ;
         export ANDROID_NDK_HOME ANDROID_NDK_LATEST_HOME
         # NDK from ndk.dir at /usr/local/lib/android/sdk/ndk-bundle 
         # had version [21.4.7075529]
