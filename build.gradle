@@ -1,1 +1,7 @@
-
+allProjects {
+def buildMinVersion: 29
+def buildTargetVersion: 30
+def buildVersionCode: 10
+def buildVersionName: "v10"
+def buildNdkVersion: "23.0.7123448"
+}
