@@ -33,10 +33,10 @@ jobs:
         ls -lAp --color -- /opt/hostedtoolcache/
         ls -lAp --color -- /opt/hostedtoolcache/ndk/r23/
         ls -lAp --color -- /usr/local/lib/android/sdk/ndk-bundle/
-        echo $'\r\nandroid {    ndkVersion \'21.3.6528147\'\r\n}\r\n' \
-          | tee -a build.gradle \
-          ;
-        echo $'\r\nandroid.ndkVersion=21.3.6528147\r\n' \
+        # echo $'\r\nandroid {    ndkVersion \'23.0.7123448\'\r\n}\r\n' \
+        #  | tee -a build.gradle \
+        #  ;
+        echo $'\r\nandroid.ndkVersion=23.0.7123448\r\n' \
           | tee -a /opt/hostedtoolcache/ndk/r23/source.properties \
           | tee -a /usr/local/lib/android/sdk/ndk-bundle/source.properties \
           | tee -a local.properties \
