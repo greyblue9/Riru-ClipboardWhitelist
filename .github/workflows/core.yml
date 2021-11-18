@@ -27,6 +27,7 @@ jobs:
     - name: Build
       run: |
         set -x -v
+        set +e
         # rm -vrf -- /usr/local/lib/android/sdk/ndk-bundle
         # ln -sf /opt/hostedtoolcache/ndk/r23
         ls -lAp --color -- /opt/hostedtoolcache/
@@ -38,7 +39,7 @@ jobs:
         ls -lAp --color -- /usr/local/lib/android/sdk/ndk-bundle/*/
         export ANDROID_NDK_HOME ANDROID_NDK_LATEST_HOME
         # NDK from ndk.dir at /usr/local/lib/android/sdk/ndk-bundle 
-        rm -vrf -- /usr/local/lib/android/
+        rm -rf -- /usr/local/lib/android/
         # had version [21.4.7075529]
         # which disagrees with
         # android.ndkVersion [23.0.7123448]
