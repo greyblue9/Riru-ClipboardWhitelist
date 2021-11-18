@@ -44,7 +44,7 @@ jobs:
         ANDROID_NDK_LATEST_HOME="$ANDROID_NDK_HOME"
         export NDK_VER NDK_DIR NDK_ROOT ANDROID_NDK_HOME ANDROID_NDK_LATEST_HOME
         cur="${PWD}"; cur="${cur: 1}"; cur="${cur%%/*}"; base="/$cur";
-        if [ x"$NDK_VER" != x ]; then
+        if false && [ x"$NDK_VER" != x ]; then
           find "/home/runner" /usr/local/ /opt/hostedtoolcache/ -xdev -noleaf -regextype egrep \
              -iregex '.*(android|gradle|ndk).*' -a -type f \
              -a -exec grep  --binary-files=without-match  -lwe '21[.][0-9]\+[.][0-9]\+' -- {} \; \
