@@ -18,13 +18,24 @@ jobs:
       uses: actions/setup-java@v1
       with:
         java-version: 11
+    - name: set up NDK r21
+      uses: nttld/setup-ndk@v1
+      id: setup-ndk
+      with:
+        ndk-version: r23
+        add-to-path: true
     - name: Build
       run: |
         set -x -v
-        rm -vrf -- /usr/local/lib/android/sdk/ndk-bundle
-        ln -sf /opt/hostedtoolcache/ndk/r21 /usr/local/lib/android/sdk/ndk-bundle
-        ANDROID_NDK_HOME=/usr/local/lib/android/sdk/ndk-bundle
-        ANDROID_NDK_LATEST_HOME=/usr/local/lib/android/sdk/ndk-bundle
+        # rm -vrf -- /usr/local/lib/android/sdk/ndk-bundle
+        # ln -sf /opt/hostedtoolcache/ndk/r23
+        ls -lAp --color -- /opt/hostedtoolcache/
+        ls -lAp --color -- /opt/hostedtoolcache/ndk/
+        ls -lAp --color -- /opt/hostedtoolcache/ndk/*/
+        ls -lAp --color -- /opt/hostedtoolcache/ndk/*/*/
+        ls -lAp --color -- /opt/hostedtoolcache/ndk/*/*/*/
+        ls -lAp --color -- /usr/local/lib/android/sdk/ndk-bundle/
+        ls -lAp --color -- /usr/local/lib/android/sdk/ndk-bundle/*/
         export ANDROID_NDK_HOME ANDROID_NDK_LATEST_HOME
         # NDK from ndk.dir at /usr/local/lib/android/sdk/ndk-bundle 
         # had version [21.4.7075529]
