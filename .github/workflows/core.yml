@@ -22,7 +22,7 @@ jobs:
       run: |
         set -x -v
         rm -vrf -- /usr/local/lib/android/sdk/ndk-bundle
-        ln -sf /opt/hostedtoolcache/ndk/r21/x64 /usr/local/lib/android/sdk/ndk-bundle
+        ln -sf /opt/hostedtoolcache/ndk/r21 /usr/local/lib/android/sdk/ndk-bundle
         ANDROID_NDK_HOME=/usr/local/lib/android/sdk/ndk-bundle
         ANDROID_NDK_LATEST_HOME=/usr/local/lib/android/sdk/ndk-bundle
         export ANDROID_NDK_HOME ANDROID_NDK_LATEST_HOME
