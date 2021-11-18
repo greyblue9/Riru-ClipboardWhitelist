@@ -28,12 +28,12 @@ jobs:
       run: |
         set -x -v
         set +e
-        mkdir -p ~/work/_temp/keystore
+        mkdir -p /home/runner/work/_temp/keystore/
         export PW=changeit
         export SIGNING_STORE_PASSWORD=changeit
         export SIGNING_KEY_ALIAS=example.com
         export SIGNING_KEY_PASSWORD=changeit
-        export KEYSTORE="$( realpath "~/work/_temp/keystore" )/example.com.jks"
+        export KEYSTORE="/home/runner/work/_temp/keystore/example.com.jks"
         export NDK_VER=23.0.7123448
         export ANDROID_NDK_LATEST_HOME="/opt/hostedtoolcache/ndk/r${NDK_VER%%.*}"
         export ANDROID_NDK_HOME="/opt/hostedtoolcache/ndk/r${NDK_VER%%.*}"
@@ -41,7 +41,7 @@ jobs:
         export NDK_ROOT="$ANDROID_NDK_HOME"
         keytool -genkeypair -v -alias "$SIGNING_KEY_ALIAS" -dname "CN=$SIGNING_KEY_ALIAS, OU=Example Org, O=Example Company, L=San Francisco, ST=California, C=US" -keystore "$KEYSTORE" -keypass:env PW -storepass:env PW -keyalg EC -keysize 256 -validity 385
         echo "$SIGNING_STORE_PASSWORD"$'\r\n' | keytool -keystore "$KEYSTORE" -keypass:env PW -storepass:env PW  -importkeystore -srckeystore "$KEYSTORE" -destkeystore "$KEYSTORE" -deststoretype pkcs12;
-        cp -vf -- "$KEYSTORE" ~/.keystore
+        cp -vf -- "$KEYSTORE" /home/runner/.keystore
         echo $'\r\nandroid.ndkVersion='"$NDK_VER"$'\r\nPkg.Revision='"$NDK_VER"$'\r\nPkg.Name=android.ndk\r\n' \
           | tee -a "/opt/hostedtoolcache/ndk/r${NDK_VER%%.*}/source.properties" \
           | tee -a /usr/local/lib/android/sdk/ndk-bundle/source.properties \
