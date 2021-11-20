@@ -55,10 +55,9 @@ jobs:
           ;
         mkdir -p ~/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist
         typeset -p -x
-        cat /home/runner/.m2/settings.xml
-        echo $'\r\n'"ndk.dir=$ANDROID_NDK_HOME" >> local.properties
+        # echo $'\r\n'"ndk.dir=$ANDROID_NDK_HOME" >> local.properties
         echo $'\r\n'"android.ndkVersion=$NDK_VER" >> local.properties
-        echo $'\r\n'"ndk.dir=$ANDROID_NDK_HOME"$'\r\n'ndk.ver=$NDK_VER"$'\r\n'ndk.version=$NDK_VER"$'\r\n'android.ndk.dir=$ANDROID_NDK_HOME"$'\r\n'android.ndk.version=$NDK_VER"$'\r\n' | tee -a  /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist/gradle.properties >> local.properties
+        # echo $'\r\n'"ndk.dir=$ANDROID_NDK_HOME"$'\r\n'ndk.ver=$NDK_VER"$'\r\n'ndk.version=$NDK_VER"$'\r\n'android.ndk.dir=$ANDROID_NDK_HOME"$'\r\n'android.ndk.version=$NDK_VER"$'\r\n' | tee -a  /home/runner/work/Riru-ClipboardWhitelist/Riru-ClipboardWhitelist/gradle.properties >> local.properties
         echo $'\norg.gradle.caching=true' >> gradle.properties
         echo $'\norg.gradle.parallel=true' >> gradle.properties
         echo $'\norg.gradle.vfs.watch=false' >> gradle.properties
