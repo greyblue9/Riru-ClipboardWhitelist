@@ -32,6 +32,8 @@ android {
         }
     }
 
+    ndkVersion = 23.0.7123448
+
     signingConfigs {
         named("release") {
             val properties = Properties().apply {
@@ -55,6 +57,9 @@ dependencies {
     compileOnly(project(":hideapi"))
 
     implementation(project(":shared"))
+
+    // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect
+    runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:1.5.31-release-571")
 }
 
 repositories {
