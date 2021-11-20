@@ -32,7 +32,7 @@ android {
         }
     }
 
-    ndkVersion = 23.0.7123448
+    ndkVersion = "23.0.7123448"
 
     signingConfigs {
         named("release") {
