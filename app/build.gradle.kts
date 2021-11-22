@@ -59,7 +59,7 @@ dependencies {
     implementation(project(":shared"))
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlin/kotlin-reflect
-    runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:1.5.31-release-571")
+    runtimeOnly("org.jetbrains.kotlin:kotlin-reflect:1.5.31")
 }
 
 repositories {

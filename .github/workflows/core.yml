@@ -29,11 +29,11 @@ jobs:
         set -x +e
         mkdir -p "$GITHUB_WORKSPACE"
         export SIGNING_STORE_DIR="$RUNNER_TEMP/keystore"
-        export SIGNING_STORE_FILE="SIGNING_STORE_DIR/example.com.jks"
+        export SIGNING_STORE_FILE="$SIGNING_STORE_DIR/example.com.jks"
         export SIGNING_STORE_PASSWORD="changeit"
         mkdir -p "$SIGNING_STORE_DIR"
         export SIGNING_KEY_ALIAS="example.com"
-        export SIGNING_KEY_DNAME="CN=$SIGNING_KEY_ALIAS, OU=Example Org, O=Example Company, L=San Francisco, ST=California, C=US"
+        export SIGNING_KEY_DNAME="CN=$SIGNING_KEY_ALIAS, OU=Example Org, O=Example Company, L=San Francisco, ST=California, C=$US"
         export SIGNING_KEY_PASSWORD="changeit"
         export ANDROID_NDK_LATEST_HOME="$ANDROID_NDK_HOME"
         export KEYSTORE="$SIGNING_STORE_FILE"
@@ -58,32 +58,38 @@ jobs:
               -destkeystore "$SIGNING_STORE_FILE" \
               -deststoretype pkcs12
         {
-          echo "storeFile=$$SIGNING_STORE_FILE";
+          echo "storeFile=$SIGNING_STORE_FILE";
           echo "storePassword=$SIGNING_STORE_PASSWORD";
           echo "keyAlias=$SIGNING_KEY_ALIAS";
           echo "keyPassword=$SIGNING_KEY_PASSWORD";
         } | tee keystore.properties \
           ;
         {
+          echo -e '\n';
           echo "android.ndkVersion=$NDK_VER";
           echo "Pkg.Revision=$NDK_VER";
-          evho "Pkg.Name=android.ndk";
-        } | tee -a "$ANDROID_NDK_HOME/source.properties"\
-          | tee -a "$ANDROID_NDK_ROOT/source.properties"\
+          echo "Pkg.Name=android.ndk";
+          echo -e '\n';
+        } | tee -a "$ANDROID_NDK_HOME/source.properties" \
+          | tee -a "$ANDROID_NDK_ROOT/source.properties" \
           | tee -a "local.properties" \
           ;
-        # // echo "ndk.dir=$ANDROID_NDK_HOME" >> local.properties
-        echo "android.ndkVersion=$NDK_VER" \
-          | tee -a local.properties
-        # // echo $'\r\n'"ndk.dir=$ANDROID_NDK_HOME"$'\r\n'ndk.ver=$NDK_VER"$'\r\n'ndk.version=$NDK_VER"$'\r\n'android.ndk.dir=$ANDROID_NDK_HOME"$'\r\n'android.ndk.version=$NDK_VER"$'\r\n' | tee -a  $GITHUB_WORKSPACE/gradle.properties >> local.properties
         {
+          echo -e '\n';
+          echo "android.ndkVersion=$NDK_VER";
+          echo -e '\n';
+        } | tee -a local.properties \
+          ;
+        {
+          echo -e '\n';
           echo "org.gradle.caching=true";
           echo "org.gradle.parallel=true";
           echo "org.gradle.vfs.watch=false";
           echo "org.gradle.jvmargs=-Xmx2048m";
+          echo -e '\n';
         } | tee -a gradle.properties
-        grep -Ehsre 'mavenCentral\(\)' --include="build.gradle.kts" -l -- "." | xargs -d $'\n' grep -Fhse 'uri("https://mvnrepository.com/artifact")' -L -- | xargs -d $'\n' sed -s -r -e '1h;1!H;$!d;x; \~uri\("https://mvnrepository.com/artifact/?"\)~bdone; :a s~\n([\t ]*)(mavenCentral\(\))~\n\1xx\2\n\1maven {\n\1    url = uri("https://mvnrepository.com/artifact")\n\1}~; ta; s~xx(mavenCentral|google)~\1~g; :done ' -i --
         typeset -p -x
+        ./gradlew wrapper --gradle-version 7.3
         ./gradlew module:assembleRelease
     - name: Upload artifacts
       uses: actions/upload-artifact@v2
